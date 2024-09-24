@@ -22,6 +22,7 @@ fun create_chromosome(size):
 
 # Kiko
 # Function to do Dijkstra search algorithm for fitness
+# to check if a path is connected, and get the shortest path from one node
 """
 """
 
@@ -49,6 +50,11 @@ fun sort_population():
 ??? extract specifi % of population based on a parameter ex) 10%
 -> selection?
 """
+def selection(SELECTION_SIZE, population):
+    # slice top SELECTION_SIZE % of population and return
+
+    return
+
 
 # Kiko
 # encode chromosome
@@ -60,6 +66,10 @@ fun encode_chromosome(chromosome, size):
 
     return encoded_chromosome
 """
+def encode_chromosome(chromosome, size):
+    # convert chromosome to be hexidecimal
+    encoded_chromosome = ""
+    return encoded_chromosome
 
 # JO
 # take two chromosomes, and create offspring
