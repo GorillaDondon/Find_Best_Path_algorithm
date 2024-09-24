@@ -1,23 +1,17 @@
 #  function to read and create a dictionary for a graph
 def dictionary_maker(file_name):
     with open (file_name, 'r') as file:
-        graph = {}
+        edges = []
         for line in file:
             if line.strip() and not line.strip().startswith('//'):
                 parts = line.split()
-                node1, node2 = int(parts[0]),int(parts[1])
-                if not node1 in graph:
-                    graph[node1] = []
-                if not node2 in graph:
-                    graph[node2] = []
-                graph[node1].append(node2)
-                graph[node2].append(node1)
+                node1, node2 = int(parts[0]), int(parts[1])
+                edges.append((node1, node2))
 
-        # sort the keys        
-        graph = {k: graph[k] for k in sorted(graph)}
+    return edges
 
-    return graph
 
+# JO
 # function to make a random path (creating an individual component)
 """
 # based on the POPULATION_SIZE, loop this function to create population
@@ -26,6 +20,12 @@ fun create_chromosome(size):
     - size create one chromosome
 """
 
+# Kiko
+# Function to do Dijkstra search algorithm for fitness
+"""
+"""
+
+# William
 # function to calculate the fitness score 
 """
 fun calc_fitness_score(chromsome):
@@ -36,18 +36,21 @@ fun calc_fitness_score(chromsome):
     - cost of links
 """
 
+# William
 # sort population based on fitness score
 """
 fun sort_population():
     based on fitness score for each of chromsome, sort from the best to the worst
 """
 
+# Kiko
 # selection of population to use for mating
 """
 ??? extract specifi % of population based on a parameter ex) 10%
 -> selection?
 """
 
+# Kiko
 # encode chromosome
 """
 fun encode_chromosome(chromosome, size):
@@ -58,6 +61,7 @@ fun encode_chromosome(chromosome, size):
     return encoded_chromosome
 """
 
+# JO
 # take two chromosomes, and create offspring
 # function to create a new generation
 """
@@ -67,16 +71,19 @@ fun create_offsprint(chromosome1, chromosome2)
     - MUTATION
 """
 
+# JO
 # crossover
 """
 fun crossover()
 """
 
+#JO
 # mutation
 """
 fun mutation
 """
 
+# William
 # show each generation with graph colored
 # show the best path from each generation
 """
@@ -86,7 +93,7 @@ fun show_generation(best_chromosome):
 
 
 # create a dictionary representing a graph
-graph = dictionary_maker('/Users/joejoezaki/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Documents/Semesters/Fall_2024/CSCE_480/hw/hw3/hw3/hw3_cost239.txt')
+graph = dictionary_maker('C:\\Users\\William Hall\\Desktop\\CSCE480\\HW3\\hw3_cost239.txt')
     
 print(graph)
 
