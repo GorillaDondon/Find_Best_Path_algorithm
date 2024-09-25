@@ -1,5 +1,6 @@
 import re
 import random
+from collections import deque
 
 #  function to read and create a dictionary for a graph
 def dictionary_maker(file_name):
@@ -26,8 +27,20 @@ def dictionary_maker(file_name):
 # function to create a random path
 def generate_path(graph):
     len_path = random.randint(1, 37)
+    all_edge_numbers = list(range(0, 37))
 
+    random.shuffle(all_edge_numbers)
+    edge_num_queue = deque(all_edge_numbers)
+
+    path = []
     for i in range(len_path):
+        path.append(edge_num_queue.pop())
+
+    return path
+
+
+
+
         
 
 
@@ -101,10 +114,20 @@ fun show_generation(best_chromosome):
 """
 
 
-# create a dictionary representing a graph
-graph = dictionary_maker('/Users/joejoezaki/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Documents/Semesters/Fall_2024/CSCE_480/hw/hw3/hw3/hw3_cost239.txt')
+# function for main 
+def __main__():
+    # create a dictionary representing a graph
+    graph = dictionary_maker('/Users/joejoezaki/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Documents/Semesters/Fall_2024/CSCE_480/hw/hw3/hw3/hw3_cost239.txt')
     
-print(graph)
+    population_size = 5
+
+    generation_1 = []
+    for i in range(population_size):
+        generation_1.append(generate_path(graph))
+
+    print(f"The first generation is:\n{generation_1}")
+
+__main__()
 
 
 
