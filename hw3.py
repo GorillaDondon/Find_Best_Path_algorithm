@@ -119,6 +119,7 @@ def __main__():
     # create a dictionary representing a graph
     graph = dictionary_maker('/Users/joejoezaki/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Documents/Semesters/Fall_2024/CSCE_480/hw/hw3/hw3/hw3_cost239.txt')
     
+    # 1: the first population creation 
     population_size = 5
 
     generation_1 = []
@@ -126,6 +127,16 @@ def __main__():
         generation_1.append(generate_path(graph))
 
     print(f"The first generation is:\n{generation_1}")
+
+    # 2: check if the best path is found or not? if yes, show the result and the operation is done. 
+    #       if not, proceed with the operations 
+    #       - Here, we have to decide how to finish the operation. 
+    #       - we can specify the number of operations, or we can end the operation 
+    #           once a chromesome that seems to have the best fitting score is found in new generation
+
+
+    # 3: conducting the mating process, and make new generation
+    #   - once it is done, go back to the #2 and check if you have the path with the best fitting score. 
 
 __main__()
 
