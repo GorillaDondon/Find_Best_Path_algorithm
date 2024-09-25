@@ -7,22 +7,16 @@ def dictionary_maker(file_name):
         graph = {}
         for line in file:
             if line.strip() and not line.strip().startswith('//'):
-                parts = line.split()
-                node1, node2 = int(parts[0]),int(parts[1])
-                if not node1 in graph:
-                    graph[node1] = []
-                if not node2 in graph:
-                    graph[node2] = []
+                match = re.search(r'(\d+)\s+(\d+)\s+//.*#(\d+)', line)
 
-                # use the regular expression to extract the number next to '#'
-                match = re.search(r'#(\d+)', line)
-                edge_num = int(match.group(1))
+                if match:
+                    node1 = int(match.group(1))
+                    node2 = int(match.group(2))
+                    edge_num = int(match.group(3))
 
-                graph[node1].append((node2, edge_num))
-                graph[node2].append((node1, edge_num))
+                graph[edge_num] = (node1, node2)
 
-        # sort the keys        
-        graph = {k: graph[k] for k in sorted(graph)}
+    graph = {k:graph[k] for k in sorted (graph)}
 
     return graph
 
@@ -32,6 +26,10 @@ def dictionary_maker(file_name):
 # function to create a random path
 def generate_path(graph):
     len_path = random.randint(1, 37)
+
+    for i in range(len_path):
+        
+
 
 
     
@@ -108,14 +106,52 @@ graph = dictionary_maker('/Users/joejoezaki/Library/Mobile Documents/com~apple~C
     
 print(graph)
 
-print()
-print(graph[0])
-print(graph[0][0])
-print(graph[0][0][1])
+
+
 
 # edge number is graph[node1][index in node1 key][1]
 
 
+"""
 
+{0: (0, 1), 
+ 1: (0, 2), 
+ 2: (2, 8), 
+ 3: (8, 18), 
+ 4: (17, 18), 
+ 5: (16, 17), 
+ 6: (15, 16), 
+ 7: (7, 15), 
+ 8: (5, 7), 
+ 9: (5, 6), 
+ 10: (6, 11), 
+ 11: (10, 11), 
+ 12: (9, 10), 
+ 13: (9, 12), 
+ 14: (12, 14), 
+ 15: (13, 14), 
+ 16: (1, 13), 
+ 17: (1, 3), 
+ 18: (3, 4), 
+ 19: (2, 4), 
+ 20: (1, 2), 
+ 21: (1, 5), 
+ 22: (2, 5), 
+ 23: (1, 11), 
+ 24: (5, 11), 
+ 25: (2, 7), 
+ 26: (7, 8), 
+ 27: (8, 13), 
+ 28: (8, 15), 
+ 29: (8, 17), 
+ 30: (11, 15), 
+ 31: (11, 13), 
+ 32: (13, 15), 
+ 33: (13, 16), 
+ 34: (1, 9), 
+ 35: (10, 12), 
+ 36: (12, 13)}
+
+"""
 
 
