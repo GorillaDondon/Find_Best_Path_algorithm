@@ -49,11 +49,12 @@ fun sort_population():
 """
 ??? extract specifi % of population based on a parameter ex) 10%
 -> selection?
-"""
+""" # SELECTION_SIZE must be 0-1
 def selection(SELECTION_SIZE, population):
     # slice top SELECTION_SIZE % of population and return
-
-    return
+    size = len(population) * SELECTION_SIZE
+    
+    return population[:size]
 
 
 # Kiko
@@ -68,8 +69,28 @@ fun encode_chromosome(chromosome, size):
 """
 def encode_chromosome(chromosome, size):
     # convert chromosome to be hexidecimal
-    encoded_chromosome = ""
+    encoded_chromosome = []
+    for c in chromosome:
+        encoded_chromosome.append(hex(c))
+    
+    if len(encoded_chromosome) > size:
+        # dropping # TODO revise
+        encoded_chromosome = encoded_chromosome[:size]
+    elif len(encoded_chromosome) < size: # padding
+        encoded_chromosome += [''] * (size - len(encoded_chromosome)) 
+
     return encoded_chromosome
+
+def decode_chromosome(chromosome):
+    decoded_chromosome = []
+    for c in chromosome:
+        if c != '':
+            decoded_chromosome.append(int(c,16))
+        else:
+            decoded_chromosome.append('')
+    
+    return decoded_chromosome
+
 
 # JO
 # take two chromosomes, and create offspring
