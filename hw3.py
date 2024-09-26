@@ -25,6 +25,14 @@ def dictionary_maker(file_name):
 
 
 # function to create a random path
+# function to make a random path (creating an individual component)
+"""
+# based on the POPULATION_SIZE, loop this function to create population
+# the size is randomly decided and passed to function (1-37)
+fun create_chromosome(size):
+    - size create one chromosome
+"""
+
 def generate_path(graph):
     len_path = random.randint(1, 37)
     all_edge_numbers = list(range(0, 37))
@@ -41,20 +49,63 @@ def generate_path(graph):
 
 
 
-        
+# function to make a offspring path out of the two parent paths
+def make_offspring(path1, path2, graph):
+    # contain the links that comprises offspring
+    offspring = []
 
+    graph_links = list(graph)
+    random.shuffle(graph_links)
+    graph_links_queue = deque(graph_links)
 
+    # all the links in the two paths
+    all_links = []
+    all_links.extend(path1)
+    all_links.extend(path2)
+    all_links = list(set(all_links))
+    random.shuffle(all_links)
+    all_links_queue = deque(all_links)
+
+    prob = random.random()
+
+    # make a offspring of the length of the path1
+    if prob < 0.33:
+        for i in range(len(path1)):
+            offspring.append(all_links_queue.pop())
+    # make a offspring of the length of the path2
+    elif prob <0.67:
+        for i in range(len(path2)):
+            offspring.append(all_links_queue.pop())
+    # make a offspring longer than the two paths
+    else:
+        if (len(path1) < len(path2)):
+            # for i in range(len(path2)+random.randint(1, len(path1))):
+            #     offspring.append(all_links_queue.pop())
+            for i in range(len(path2)):
+                offspring.append(all_links_queue.pop())
+            for i in range(random.randint(1, len(path1))):
+                new_link = graph_links_queue.pop()
+                while(new_link in offspring):
+                    new_link = graph_links_queue.pop()
+                offspring.append(new_link)
+
+        else:
+            # for i in range(len(path1)+random.randint(1, len(path2))):
+            #     offspring.append(all_links_queue.pop())
+            for i in range(len(path1)):
+                offspring.append(all_links_queue.pop())
+            for i in range(random.randint(1, len(path2))):
+                new_link = graph_links_queue.pop()
+                while(new_link in offspring):
+                    new_link = graph_links_queue.pop()
+                offspring.append(new_link)
+    
+    return offspring
 
     
 
-# function to make a random path (creating an individual component)
-"""
-# based on the POPULATION_SIZE, loop this function to create population
-# the size is randomly decided and passed to function (1-37)
-fun create_chromosome(size):
-    - size create one chromosome
-"""
-
+        
+        
 # function to calculate the fitness score 
 """
 fun calc_fitness_score(chromsome):
@@ -116,9 +167,17 @@ fun show_generation(best_chromosome):
 
 # function for main 
 def __main__():
-    # create a dictionary representing a graph
+    ## create a dictionary representing a graph
     graph = dictionary_maker('/Users/joejoezaki/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Documents/Semesters/Fall_2024/CSCE_480/hw/hw3/hw3/hw3_cost239.txt')
-    
+
+    #print(graph)
+
+    path1 = [14, 2, 24, 16, 19, 34]
+    path2 = [36, 2, 17, 19, 20, 9, 16, 28, 30, 18]
+    print(make_offspring(path1, path2, graph))
+
+
+    """
     # 1: the first population creation 
     population_size = 5
 
@@ -126,66 +185,25 @@ def __main__():
     for i in range(population_size):
         generation_1.append(generate_path(graph))
 
+
+
     print(f"The first generation is:\n{generation_1}")
+    """
 
-    # 2: check if the best path is found or not? if yes, show the result and the operation is done. 
-    #       if not, proceed with the operations 
-    #       - Here, we have to decide how to finish the operation. 
-    #       - we can specify the number of operations, or we can end the operation 
-    #           once a chromesome that seems to have the best fitting score is found in new generation
+# 2: check if the best path is found or not? if yes, show the result and the operation is done. 
+#       if not, proceed with the operations 
+#       - Here, we have to decide how to finish the operation. 
+#       - we can specify the number of operations, or we can end the operation 
+#           once a chromesome that seems to have the best fitting score is found in new generation
 
 
-    # 3: conducting the mating process, and make new generation
-    #   - once it is done, go back to the #2 and check if you have the path with the best fitting score. 
+# 3: conducting the mating process, and make new generation
+#   - once it is done, go back to the #2 and check if you have the path with the best fitting score. 
 
 __main__()
 
 
 
 
-# edge number is graph[node1][index in node1 key][1]
-
-
-"""
-
-{0: (0, 1), 
- 1: (0, 2), 
- 2: (2, 8), 
- 3: (8, 18), 
- 4: (17, 18), 
- 5: (16, 17), 
- 6: (15, 16), 
- 7: (7, 15), 
- 8: (5, 7), 
- 9: (5, 6), 
- 10: (6, 11), 
- 11: (10, 11), 
- 12: (9, 10), 
- 13: (9, 12), 
- 14: (12, 14), 
- 15: (13, 14), 
- 16: (1, 13), 
- 17: (1, 3), 
- 18: (3, 4), 
- 19: (2, 4), 
- 20: (1, 2), 
- 21: (1, 5), 
- 22: (2, 5), 
- 23: (1, 11), 
- 24: (5, 11), 
- 25: (2, 7), 
- 26: (7, 8), 
- 27: (8, 13), 
- 28: (8, 15), 
- 29: (8, 17), 
- 30: (11, 15), 
- 31: (11, 13), 
- 32: (13, 15), 
- 33: (13, 16), 
- 34: (1, 9), 
- 35: (10, 12), 
- 36: (12, 13)}
-
-"""
 
 
