@@ -1,3 +1,5 @@
+from collections import deque
+
 #  function to read and create a dictionary for a graph
 def dictionary_maker(file_name):
     with open (file_name, 'r') as file:
@@ -23,8 +25,52 @@ fun create_chromosome(size):
 # Kiko
 # Function to do Dijkstra search algorithm for fitness
 # to check if a path is connected, and get the shortest path from one node
-"""
-"""
+def create_sub_graph(chromosome):
+    sub_graph = {}
+
+    for c in chromosome:
+        if not (graph[c][0] in sub_graph):
+            sub_graph[graph[c][0]] = []
+        sub_graph[graph[c][0]].append(graph[c][1])
+
+        if not (graph[c][1] in sub_graph):
+            sub_graph[graph[c][1]] = []
+        sub_graph[graph[c][1]].append(graph[c][0])
+
+    return sub_graph
+
+def find_shortest_path(graph, start, goal):
+    # Keep track of visited nodes
+    visited = set()
+    # Queue to store paths
+    queue = deque([[start]])
+    
+    # BFS loop
+    while queue:
+        path = queue.popleft()
+        node = path[-1]
+        
+        if node == goal:
+            return len(path) - 1  # Number of edges = number of nodes in path - 1
+        
+        if node not in visited:
+            visited.add(node)
+            for neighbor in graph[node]:
+                new_path = list(path)
+                new_path.append(neighbor)
+                queue.append(new_path)
+    
+    return None  # Return None if no path exists
+
+def calc_distance(sub_graph, visited_nodes):
+    total_distance = 0
+    connection_count = 1
+    for i in range(len(visited_nodes)-1):
+        distance = find_shortest_path(sub_graph, visited_nodes[i], visited_nodes[i+1])
+        if distance != None:
+            total_distance += distance
+            connection_count += 1
+    return total_distance, connection_count
 
 # William
 # function to calculate the fitness score 
@@ -50,46 +96,12 @@ fun sort_population():
 ??? extract specifi % of population based on a parameter ex) 10%
 -> selection?
 """ # SELECTION_SIZE must be 0-1
-def selection(SELECTION_SIZE, population):
+def selection(SELECTION_SIZE, population_with_fitness): # population_with_fitness should be sorted already
     # slice top SELECTION_SIZE % of population and return
-    size = len(population) * SELECTION_SIZE
+    size = len(population_with_fitness) * SELECTION_SIZE
     
-    return population[:size]
+    return population_with_fitness[:size]
 
-
-# Kiko
-# encode chromosome
-"""
-fun encode_chromosome(chromosome, size):
-    - hexidecimal encoding
-    - padding or dropping if needed to, based on the size
-    (ex) one chromosome can be 8 and the other can be 12 but they have to be the same size to mate)
-
-    return encoded_chromosome
-"""
-def encode_chromosome(chromosome, size):
-    # convert chromosome to be hexidecimal
-    encoded_chromosome = []
-    for c in chromosome:
-        encoded_chromosome.append(hex(c))
-    
-    if len(encoded_chromosome) > size:
-        # dropping # TODO revise
-        encoded_chromosome = encoded_chromosome[:size]
-    elif len(encoded_chromosome) < size: # padding
-        encoded_chromosome += [''] * (size - len(encoded_chromosome)) 
-
-    return encoded_chromosome
-
-def decode_chromosome(chromosome):
-    decoded_chromosome = []
-    for c in chromosome:
-        if c != '':
-            decoded_chromosome.append(int(c,16))
-        else:
-            decoded_chromosome.append('')
-    
-    return decoded_chromosome
 
 
 # JO
