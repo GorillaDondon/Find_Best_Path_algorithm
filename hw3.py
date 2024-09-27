@@ -1,16 +1,46 @@
+import random
+
 #  function to read and create a dictionary for a graph
 def dictionary_maker(file_name):
     with open (file_name, 'r') as file:
-        edges = []
+        edges = {}
+        counter = 0
         for line in file:
             if line.strip() and not line.strip().startswith('//'):
                 parts = line.split()
                 node1, node2 = int(parts[0]), int(parts[1])
-                edges.append((node1, node2))
+                edges[counter] = (node1, node2)
+                counter += 1
 
     return edges
 
+target = [2, 4, 6, 9]
 
+def create_random_chromosome(edges):
+    number_edges = len(edges)
+
+    edge_count = random.randint(3, 8)
+
+    edge_indexes = random.sample(range(number_edges), edge_count)
+
+    return edge_indexes
+
+def create_parent(population_size, graph):
+    
+    population = []
+    for i in range(population_size):
+        parent = []
+        edges = create_random_chromosome(graph)
+        print("indexes:", edges)
+        for i in range(len(edges)):
+            parent.append(graph[edges[i]])
+
+        population.append(parent)
+
+    return population
+
+    
+     
 # JO
 # function to make a random path (creating an individual component)
 """
@@ -27,14 +57,10 @@ fun create_chromosome(size):
 
 # William
 # function to calculate the fitness score 
-"""
-fun calc_fitness_score(chromsome):
-    - if any node from M is in a chromsome
-        - if there are more than two nodes in chromsome
-            - if there are connections between them
-                - cost of links
-    - cost of links
-"""
+
+def calc_fitness_score(chromsome, target_nodes):
+    return
+    
 
 # William
 # sort population based on fitness score
@@ -95,7 +121,13 @@ fun show_generation(best_chromosome):
 # create a dictionary representing a graph
 graph = dictionary_maker('C:\\Users\\William Hall\\Desktop\\CSCE480\\HW3\\hw3_cost239.txt')
     
-print(graph)
+
+
+population = create_parent(10, graph)
+
+for i in range(len(population)):
+    print(f"parent {i}'s population", population[i])
+#print(graph)
 
 
 
