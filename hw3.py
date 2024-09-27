@@ -181,7 +181,7 @@ def __main__():
     #           once a chromesome that seems to have the best fitting score is found in new generation
 
     # 3: conducting the mating process, and make new generation
-    #   - once it is done, go back to the #2 and check if you have the path with the best fitting score. 
+    #   - once it is done, go back to the #2 and check if you have the path with the best fitting score. (while loop?)
     new_generation = make_new_generation(current_population, graph)
 
 __main__()
