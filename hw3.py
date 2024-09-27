@@ -54,16 +54,17 @@ def make_offspring(path1, path2, graph):
     # contain the links that comprises offspring
     offspring = []
 
+    # all the links (edges) in the graph
     graph_links = list(graph)
     random.shuffle(graph_links)
     graph_links_queue = deque(graph_links)
 
-    # all the links in the two paths
+    # all the links (edges) in the two paths
     all_links = []
     all_links.extend(path1)
     all_links.extend(path2)
-    all_links = list(set(all_links))
-    random.shuffle(all_links)
+    all_links = list(set(all_links)) # to prevent the duplication of the same link 
+    random.shuffle(all_links) 
     all_links_queue = deque(all_links)
 
     prob = random.random()
@@ -78,11 +79,15 @@ def make_offspring(path1, path2, graph):
             offspring.append(all_links_queue.pop())
     # make a offspring longer than the two paths
     else:
+        # the idea is to first get an offspring of the same length as the longer parent path, and then, 
+        #   add new links (the number of links is randomly decided less than the number of shorter path) to the offspring
+        #   By randomly adding some links, it works as mutation
         if (len(path1) < len(path2)):
-            # for i in range(len(path2)+random.randint(1, len(path1))):
-            #     offspring.append(all_links_queue.pop())
+            # first, get links for the number of length of the longer path (in his case, path2)
             for i in range(len(path2)):
                 offspring.append(all_links_queue.pop())
+            
+            # additionally, add new links for the number of length less than that of the shorter path (in this case, path1)
             for i in range(random.randint(1, len(path1))):
                 new_link = graph_links_queue.pop()
                 while(new_link in offspring):
@@ -90,10 +95,10 @@ def make_offspring(path1, path2, graph):
                 offspring.append(new_link)
 
         else:
-            # for i in range(len(path1)+random.randint(1, len(path2))):
-            #     offspring.append(all_links_queue.pop())
+            
             for i in range(len(path1)):
                 offspring.append(all_links_queue.pop())
+            
             for i in range(random.randint(1, len(path2))):
                 new_link = graph_links_queue.pop()
                 while(new_link in offspring):
@@ -102,7 +107,42 @@ def make_offspring(path1, path2, graph):
     
     return offspring
 
+# function to generate a new generation. suppose that the parameter 'current_population' is 
+#   already sorted based on fitness score
+def make_new_generation(current_population, graph):
+    # get the population size
+    population_size = len(current_population)
+
+    # store paths to be considered to be in new generation
+    paths = current_population
+
+    new_generation = []
+
+    # store the generated new offspring paths
+    offspring_paths = []
+
+    # make offsprings first
+    for i in range(population_size):
+        # randomly select 2 parent paths out of the best 50% fitting paths
+        parent_path1 = random.choice(current_population[0:(len(current_population)/2)])
+        parent_path2 = random.choice(current_population[0:(len(current_population)/2)])
+        offspring_paths.append(make_offspring(parent_path1, parent_path2, graph))
+
+    # then, merge it with the current population
+    paths.append(offspring_paths)
     
+    # sort it based on the fitness score.
+    # ---------- here i need to use the calc fit ness function ---------
+
+    # select the best paths for the number of the length of the current population, and make a new generation
+    paths_queue = deque(paths)
+    for i in range(population_size):
+        new_generation.append(paths_queue.pop())
+
+    # return the new population, here it is not sorted based on fitness score
+    return new_generation
+
+
 
         
         
@@ -167,16 +207,27 @@ fun show_generation(best_chromosome):
 
 # function for main 
 def __main__():
-    ## create a dictionary representing a graph
     graph = dictionary_maker('/Users/joejoezaki/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Documents/Semesters/Fall_2024/CSCE_480/hw/hw3/hw3/hw3_cost239.txt')
 
-    #print(graph)
+    population_size = 100
 
-    path1 = [14, 2, 24, 16, 19, 34]
-    path2 = [36, 2, 17, 19, 20, 9, 16, 28, 30, 18]
-    print(make_offspring(path1, path2, graph))
+    current_population = []
+    for i in range(population_size):
+        current_population.append(generate_path(graph))
 
 
+
+
+    # store paths to be considered to be in new generation
+    paths = current_population
+
+    # store the paths for a new generation
+    new_generation = []
+
+    # store the generated new offspring paths
+    offspring_paths = []
+
+    
     """
     # 1: the first population creation 
     population_size = 5
