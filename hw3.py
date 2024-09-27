@@ -89,8 +89,12 @@ def make_offspring(path1, path2, graph):
             
             # additionally, add new links for the number of length less than that of the shorter path (in this case, path1)
             for i in range(random.randint(1, len(path1))):
+                if (not graph_links_queue):
+                    break
                 new_link = graph_links_queue.pop()
                 while(new_link in offspring):
+                    if (not graph_links_queue):
+                        break
                     new_link = graph_links_queue.pop()
                 offspring.append(new_link)
 
@@ -100,8 +104,12 @@ def make_offspring(path1, path2, graph):
                 offspring.append(all_links_queue.pop())
             
             for i in range(random.randint(1, len(path2))):
+                if (not graph_links_queue):
+                    break
                 new_link = graph_links_queue.pop()
                 while(new_link in offspring):
+                    if (not graph_links_queue):
+                        break
                     new_link = graph_links_queue.pop()
                 offspring.append(new_link)
     
@@ -226,8 +234,24 @@ def __main__():
 
     # store the generated new offspring paths
     offspring_paths = []
+     # make offsprings first
+    for i in range(len(current_population)):
+        print("------------ test -------------")
+        # randomly select 2 parent paths out of the best 50% fitting paths
+        parent_path1 = random.choice(current_population[0:len(current_population)//2])
+        parent_path2 = random.choice(current_population[0:len(current_population)//2])
+        print(f"{i}rd iteration:: parent1: {parent_path1}, parent: {parent_path2}")
 
-    
+        # make one offspring 
+        offspring = make_offspring(parent_path1, parent_path2, graph)
+        offspring_paths.append(offspring)
+
+    # then, merge it with the current population
+    paths.extend(offspring_paths)   # here it affect
+
+    # test: supposed to show 200 paths
+    print(len(paths))
+
     """
     # 1: the first population creation 
     population_size = 5
