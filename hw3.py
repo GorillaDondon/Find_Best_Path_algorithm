@@ -58,9 +58,52 @@ fun create_chromosome(size):
 # William
 # function to calculate the fitness score 
 
-def calc_fitness_score(chromsome, target_nodes):
-    return
+# DFS search through the graph
+def dfs(node, graph, visited):
+    visited.add(node)
+    for neighbor in graph[node]:
+        if neighbor not in visited:
+            dfs(neighbor, graph, visited)
+
+# Function to see how many nodes are connected
+def are_connected(edges, nodes):
+
+    graph = {}
+    for u, v in edges:
+        if u not in graph:
+            graph[u] = []
+        if v not in graph:
+            graph[v] = []
+        graph[u].append(v)
+        graph[v].append(u)
+
+    # Check if any nodes to check exist in the graph
+    if not any(node in graph for node in nodes):
+        return 0
     
+    visited = set()
+    for node in nodes:
+        if node in graph:
+            dfs(node, graph, visited)
+            break  # Start DFS from the first existing node
+
+    # Count how many of the nodes_to_check are in visited
+    connected_count = sum(node in visited for node in nodes)
+
+    return connected_count
+
+# Calculates the fitness of the offspring
+def calc_fitness_score(offspring, graph, target_nodes):
+    offspring = [graph[key] for key in offspring]
+
+    nodes_connected = are_connected(offspring, target_nodes)
+
+    num_edges = len(offspring)
+
+    fitness = nodes_connected/(1+num_edges)
+
+    return fitness
+
 
 # William
 # sort population based on fitness score
