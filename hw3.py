@@ -94,11 +94,11 @@ def make_offspring(path1, path2, graph):
     prob = random.random()
 
     # make a offspring of the length of the path1
-    if prob < 0.33:
+    if prob < 0.45:
         for i in range(len(path1.get_path())):
             offspring.append(all_links_queue.pop())
     # make a offspring of the length of the path2
-    elif prob <0.67:
+    elif prob <0.90:
         for i in range(len(path2.get_path())):
             offspring.append(all_links_queue.pop())
     # make a offspring longer than the two paths
@@ -163,12 +163,11 @@ def make_new_generation(current_population, graph, target_nodes):
         parent_path1 = random.choice(current_population[0:(len(current_population)//2)])
         parent_path2 = random.choice(current_population[0:(len(current_population)//2)])
         offspring = make_offspring(parent_path1, parent_path2, graph)
-        offspring.set_fitness_score(calc_fitness_score(offspring.get_path(), graph, target_nodes))
+        offspring.set_fitness_score(calc_fitness_score_joe(offspring.get_path(), graph, target_nodes))
         offspring_paths.append(offspring)
 
     # then, merge it with the current population
     paths.extend(offspring_paths)
-    print(f" -------------- test --------------: \n")
     print(len(paths))
 
     # sort it based on the fitness score.
@@ -230,6 +229,26 @@ def calc_fitness_score(offspring, graph, target_nodes):
 
     return fitness
 
+def calc_fitness_score_joe(path, graph, target_nodes):
+    path = [graph[key] for key in path]
+
+    # number of nodes connected
+    num_nodes_connected = are_connected(path, target_nodes)
+
+    # number of edges in a path
+    num_edges = len(path)
+
+    # calculate the base score
+    score = num_nodes_connected * 100
+
+    # penalty depending on the length of the path (shorter path is better)
+    score = score - num_edges * 10
+
+    # if not all the target nodes are not connected, another penalty 
+    if len(target_nodes) != num_nodes_connected:
+        score = score - (len(target_nodes)-num_nodes_connected) * 200
+
+    return score
 
 # Kiko
 # Function to do Dijkstra search algorithm for fitness
@@ -313,18 +332,22 @@ def __main__():
     graph = dictionary_maker('/Users/joejoezaki/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Documents/Semesters/Fall_2024/CSCE_480/hw/hw3/hw3/hw3_cost239.txt')
 
     # 1: the first population creation 
-    population_size = 100
+    population_size = 500
 
     target_nodes = [3, 5, 7, 15]
 
-    first_population = []
+    new_population = []
     for i in range(population_size):
         path = Path(generate_path(graph))
-        fitness_score = calc_fitness_score(path.get_path(), graph, target_nodes)
+        fitness_score = calc_fitness_score_joe(path.get_path(), graph, target_nodes)
         path.set_fitness_score(fitness_score)
-        first_population.append(path)
-    
+        new_population.append(path)
 
+    new_population = sorted(new_population, key=lambda path: path.fitness_score)
+    
+    print("------------- the 1st generation --------------")
+    print(f"the best of this generation: {new_population[0].get_path()}, fitness score: {new_population[0].fitness_score}\n")
+    
     # 2: check if the best path is found or not? if yes, show the result and the operation is done. 
     #       if not, proceed with the operations 
     #       - Here, we have to decide how to finish the operation. 
@@ -333,7 +356,13 @@ def __main__():
 
     # 3: conducting the mating process, and make new generation
     #   - once it is done, go back to the #2 and check if you have the path with the best fitting score. (while loop?)
-    new_generation = make_new_generation(first_population, graph, target_nodes)
+    
+    
+    for k in range(10):
+        print(f"------------- {k+1}th generation --------------")
+        new_population = make_new_generation(new_population, graph, target_nodes)
+        print(f"the best of this generation: {new_population[0].get_path()}, fitness score: {new_population[0].fitness_score}\n")
+    
 
 __main__()
 
