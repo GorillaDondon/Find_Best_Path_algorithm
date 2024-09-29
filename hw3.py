@@ -61,7 +61,8 @@ def dictionary_maker(file_name):
 # function to make a random path (creating an individual component)
 # based on the POPULATION_SIZE, loop this function to create population
 def generate_path(graph):
-    len_path = random.randint(1, len(graph))
+
+    len_path = random.randint(1,len(graph))
     all_edge_numbers = list(range(0, len(graph)))
 
     random.shuffle(all_edge_numbers)
@@ -182,9 +183,12 @@ def make_new_generation(current_population, graph, target_nodes):
         # randomly select 2 parent paths out of the best 50% fitting paths
         parent_path1 = random.choice(current_population[0:(len(current_population)//2)])
         parent_path2 = random.choice(current_population[0:(len(current_population)//2)])
+
         offspring = make_offspring(parent_path1, parent_path2, graph)
+
         offspring.set_fitness_score(calc_fitness_score_joe(offspring.get_path(), graph, target_nodes))
         offspring_paths.append(offspring)
+        offspring_paths.append(make_offspring(parent_path1, parent_path2, graph))
 
     # then, merge it with the current population
     paths.extend(offspring_paths)
