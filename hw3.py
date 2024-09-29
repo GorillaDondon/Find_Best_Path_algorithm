@@ -73,6 +73,24 @@ def generate_path(graph):
 
     return path
 
+def add_random_edges(graph, offspring, parent):
+    # all the links (edges) in the graph
+    graph_links = list(graph)
+    random.shuffle(graph_links)
+    graph_links_queue = deque(graph_links)
+
+    for i in range(random.randint(1, len(parent.get_path()))):
+        if (not graph_links_queue):
+            break
+        new_link = graph_links_queue.pop()
+        while(new_link in offspring):
+            if (not graph_links_queue):
+                break
+            new_link = graph_links_queue.pop()
+        offspring.append(new_link)
+    return offspring
+            
+
 # function to make a offspring path out of the two parent paths
 def make_offspring(path1, path2, graph):
     # contain the links that comprises offspring
@@ -84,9 +102,7 @@ def make_offspring(path1, path2, graph):
     graph_links_queue = deque(graph_links)
 
     # all the links (edges) in the two paths
-    all_links = []
-    all_links.extend(path1.get_path())
-    all_links.extend(path2.get_path())
+    all_links = path1.get_path() + path2.get_path()
     all_links = list(set(all_links)) # to prevent the duplication of the same link 
     random.shuffle(all_links) 
     all_links_queue = deque(all_links)
@@ -94,12 +110,12 @@ def make_offspring(path1, path2, graph):
     prob = random.random()
 
     # make a offspring of the length of the path1
-    if prob < 0.45:
-        for i in range(len(path1.get_path())):
+    if prob < 0.40:
+        for i in range(random.randint(0, len(path1.get_path()))):
             offspring.append(all_links_queue.pop())
     # make a offspring of the length of the path2
-    elif prob <0.90:
-        for i in range(len(path2.get_path())):
+    elif prob <0.80:
+        for i in range(random.randint(0, len(path2.get_path()))):
             offspring.append(all_links_queue.pop())
     # make a offspring longer than the two paths
     else:
@@ -112,31 +128,35 @@ def make_offspring(path1, path2, graph):
                 offspring.append(all_links_queue.pop())
             
             # additionally, add new links for the number of length less than that of the shorter path (in this case, path1)
-            for i in range(random.randint(1, len(path1.get_path()))):
-                if (not graph_links_queue):
-                    break
-                new_link = graph_links_queue.pop()
-                while(new_link in offspring):
-                    if (not graph_links_queue):
-                        break
-                    new_link = graph_links_queue.pop()
-                offspring.append(new_link)
+            # for i in range(random.randint(1, len(path1.get_path()))):
+            #     if (not graph_links_queue):
+            #         break
+            #     new_link = graph_links_queue.pop()
+            #     while(new_link in offspring):
+            #         if (not graph_links_queue):
+            #             break
+            #         new_link = graph_links_queue.pop()
+            #     offspring.append(new_link)
+            offspring = add_random_edges(graph, offspring, path1)
 
         else:
             # first, get links for the number of length of the longer path (in his case, path1)
             for i in range(len(path1.get_path())):
+                if (not all_links_queue):
+                    break
                 offspring.append(all_links_queue.pop())
 
             # additionally, add new links for the number of length less than that of the shorter path (in this case, path1)
-            for i in range(random.randint(1, len(path2.get_path()))):
-                if (not graph_links_queue):
-                    break
-                new_link = graph_links_queue.pop()
-                while(new_link in offspring):
-                    if (not graph_links_queue):
-                        break
-                    new_link = graph_links_queue.pop()
-                offspring.append(new_link)
+            # for i in range(random.randint(1, len(path2.get_path()))):
+            #     if (not graph_links_queue):
+            #         break
+            #     new_link = graph_links_queue.pop()
+            #     while(new_link in offspring):
+            #         if (not graph_links_queue):
+            #             break
+            #         new_link = graph_links_queue.pop()
+            #     offspring.append(new_link)
+            offspring = add_random_edges(graph, offspring, path2)
     
     offspring = Path(offspring)
 
@@ -168,7 +188,6 @@ def make_new_generation(current_population, graph, target_nodes):
 
     # then, merge it with the current population
     paths.extend(offspring_paths)
-    print(len(paths))
 
     # sort it based on the fitness score.
     paths = sorted(paths, key=lambda path: path.fitness_score)
@@ -239,16 +258,17 @@ def calc_fitness_score_joe(path, graph, target_nodes):
     num_edges = len(path)
 
     # calculate the base score
-    score = num_nodes_connected * 100
+    score = num_nodes_connected * 200
 
     # penalty depending on the length of the path (shorter path is better)
-    score = score - num_edges * 10
+    score = score - num_edges * 20
 
     # if not all the target nodes are not connected, another penalty 
     if len(target_nodes) != num_nodes_connected:
         score = score - (len(target_nodes)-num_nodes_connected) * 200
 
-    return score
+    return score / len(target_nodes)
+
 
 # Kiko
 # Function to do Dijkstra search algorithm for fitness
@@ -334,7 +354,7 @@ def __main__():
     # 1: the first population creation 
     population_size = 500
 
-    target_nodes = [3, 5, 7, 15]
+    target_nodes = [3, 9, ]
 
     new_population = []
     for i in range(population_size):
@@ -344,7 +364,9 @@ def __main__():
         new_population.append(path)
 
     new_population = sorted(new_population, key=lambda path: path.fitness_score)
+
     
+
     print("------------- the 1st generation --------------")
     print(f"the best of this generation: {new_population[0].get_path()}, fitness score: {new_population[0].fitness_score}\n")
     
@@ -358,11 +380,13 @@ def __main__():
     #   - once it is done, go back to the #2 and check if you have the path with the best fitting score. (while loop?)
     
     
-    for k in range(10):
-        print(f"------------- {k+1}th generation --------------")
+    for k in range(100):
         new_population = make_new_generation(new_population, graph, target_nodes)
-        print(f"the best of this generation: {new_population[0].get_path()}, fitness score: {new_population[0].fitness_score}\n")
-    
+        # for i in range(5):
+        #     print(f"the {i}th best of this generation: {new_population[i].get_path()}, fitness score: {new_population[i].fitness_score}\n")
+        print(f"------------- best 5 solutions of {k+1}th generation")
+        for i in range(5):
+            print(f"{i}th: {new_population[i].get_path()}, {new_population[i].fitness_score}")
 
 __main__()
 
