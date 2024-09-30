@@ -232,10 +232,11 @@ def show_generation(best_chromosome, graph, target_nodes, generation):
 
     # Layout for node positioning
     layout = G.layout("kk")  # Kamada-Kawai layout
+    layout.scale(2.0)
 
     visual_style = {
         "layout":layout,
-        "margin": 20
+        "margin": 50,
     }
 
     # Assign all nodes the color blue
@@ -249,7 +250,6 @@ def show_generation(best_chromosome, graph, target_nodes, generation):
     visual_style["vertex_color"] = vertex_colors
     visual_style["vertex_label"] = [str(i) for i in range(len(G.vs))]
 
-
     # Assigns all the offspring to red and the rest of the graph nodes to blue
     edge_colors = ["gray"] * len(G.es)
     for edge_idx in best_chromosome:
@@ -258,10 +258,12 @@ def show_generation(best_chromosome, graph, target_nodes, generation):
     # Assign the edge colors  and the edge numbers to each node
     visual_style["edge_color"] = edge_colors
     visual_style["edge_label"] = [str(i) for i in range(len(G.es))]
+    visual_style["edge_label_dist"] = 1.5  # Push edge labels away from edges
+
 
 
     # Plotting using igraph and Matplotlib
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(15, 15))
     ig.plot(G, target=ax, **visual_style)
 
     save_path = os.path.join("Best_generations", f"Generation{generation}.png")
@@ -275,7 +277,7 @@ def __main__():
     # 1: the first population creation 
     population_size = 500
 
-    target_nodes = [3, 9, 15, 10]
+    target_nodes = [3, 9, 15, 10, 13, 4, 1]
 
     new_population = []
     for i in range(population_size):
@@ -291,7 +293,7 @@ def __main__():
     print("------------- the 1st generation --------------")
     print(f"the best of this generation: {new_population[0].get_path()}, fitness score: {new_population[0].fitness_score}\n")
     
-    for k in range(50):
+    for k in range(3):
         new_population = make_new_generation(new_population, graph, target_nodes)
         print(f"------------- best 5 solutions of {k+1}th generation")
         for i in range(5):
