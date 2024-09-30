@@ -1,6 +1,9 @@
 import re
 import random
 from collections import deque
+import igraph as ig
+import matplotlib.pyplot as plt
+
 
 class Path:
     def __init__(self, path):
@@ -340,12 +343,52 @@ fun sort_population():
     based on fitness score for each of chromsome, sort from the best to the worst
 """
 
-# show each generation with graph colored
-# show the best path from each generation
-"""
-fun show_generation(best_chromosome):
-    - show with the library
-"""
+# show each generation with sub_graph colored
+def show_generation(best_chromosome, graph, target_nodes, generation):
+
+    # Extract edges from the graph dictionary
+    graph_edges = graph.values()
+    
+    # Create the igraph graph object
+    G = ig.Graph(edges=graph_edges)
+
+    # Layout for node positioning
+    layout = G.layout("kk")  # Kamada-Kawai layout
+
+    visual_style = {
+        "layout":layout,
+        "margin": 20
+    }
+
+    # Assign all nodes the color blue
+    vertex_colors = ["lightblue"] * len(G.vs)
+
+    # Assign all target nodes red
+    for node in target_nodes:
+        vertex_colors[node] = "red"
+
+    # Assign node colors and the node number to each node 
+    visual_style["vertex_color"] = vertex_colors
+    visual_style["vertex_label"] = [str(i) for i in range(len(G.vs))]
+
+
+    # Assigns all the offspring to red and the rest of the graph nodes to blue
+    edge_colors = ["gray"] * len(G.es)
+    for edge_idx in best_chromosome:
+        edge_colors[edge_idx] = "red"  # Highlight edges in best_chromosome
+
+    # Assign the edge colors  and the edge numbers to each node
+    visual_style["edge_color"] = edge_colors
+    visual_style["edge_label"] = [str(i) for i in range(len(G.es))]
+
+
+    # Plotting using igraph and Matplotlib
+    fig, ax = plt.subplots()
+    ig.plot(G, target=ax, **visual_style)
+
+    plt.show()
+
+    fig.savefig(f"Generation{generation}.pdf")
 
 # function for main 
 def __main__():
@@ -354,7 +397,7 @@ def __main__():
     # 1: the first population creation 
     population_size = 500
 
-    target_nodes = [3, 9, 15, 10 ]
+    target_nodes = [3, 9, 15, 10]
 
     new_population = []
     for i in range(population_size):
@@ -380,7 +423,7 @@ def __main__():
     #   - once it is done, go back to the #2 and check if you have the path with the best fitting score. (while loop?)
     
     
-    for k in range(100):
+    for k in range(5):
         new_population = make_new_generation(new_population, graph, target_nodes)
         # for i in range(5):
         #     print(f"the {i}th best of this generation: {new_population[i].get_path()}, fitness score: {new_population[i].fitness_score}\n")
@@ -388,4 +431,5 @@ def __main__():
         for i in range(5):
             print(f"{i}th: {new_population[i].get_path()}, {new_population[i].fitness_score}")
 
+        show_generation(new_population[0].get_path(), graph, target_nodes, k)
 __main__()
