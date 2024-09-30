@@ -6,38 +6,14 @@ class Path:
     def __init__(self, path):
         self.path = path
     
-    def set_size(self, size):
-        self.size = size
-    
     def set_fitness_score(self, fitness_score):
         self.fitness_score = fitness_score
-    
-    def set_target_node_count(self, target_node_count): # number of nodes from M in the path
-        self.target_node_count = target_node_count
-    
-    def set_connected_target_count(self, connected_target_count): # number of nodes from M connected
-        self.connected_target_count = connected_target_count
-    
-    def set_total_edges(self, total_edges):
-        self.total_edges = total_edges
     
     def get_path(self):
         return self.path
     
     def get_fitness_score(self):
         return self.fitness_score
-
-    def get_size(self):
-        return self.size
-    
-    def get_target_node_count(self):
-        return self.target_node_count
-
-    def get_connected_target_count(self):
-        return self.connected_target_count
-    
-    def get_total_edges(self):
-        return self.total_edges
 
 # function to make a dictionary representing a graph, where the number of links are used as keys
 def dictionary_maker(file_name):
@@ -73,19 +49,19 @@ def generate_path(graph):
 
     return path
 
+# used for mutation, add random edges when two paths mate
 def add_random_edges(graph, offspring, parent):
     # all the links (edges) in the graph
     graph_links = list(graph)
     random.shuffle(graph_links)
     graph_links_queue = deque(graph_links)
 
+    # 
     for i in range(random.randint(1, len(parent.get_path()))):
         if (not graph_links_queue):
             break
         new_link = graph_links_queue.pop()
-        while(new_link in offspring):
-            if (not graph_links_queue):
-                break
+        while(new_link in offspring and graph_links_queue):
             new_link = graph_links_queue.pop()
         offspring.append(new_link)
     return offspring
@@ -128,15 +104,6 @@ def make_offspring(path1, path2, graph):
                 offspring.append(all_links_queue.pop())
             
             # additionally, add new links for the number of length less than that of the shorter path (in this case, path1)
-            # for i in range(random.randint(1, len(path1.get_path()))):
-            #     if (not graph_links_queue):
-            #         break
-            #     new_link = graph_links_queue.pop()
-            #     while(new_link in offspring):
-            #         if (not graph_links_queue):
-            #             break
-            #         new_link = graph_links_queue.pop()
-            #     offspring.append(new_link)
             offspring = add_random_edges(graph, offspring, path1)
 
         else:
@@ -148,14 +115,6 @@ def make_offspring(path1, path2, graph):
 
             # additionally, add new links for the number of length less than that of the shorter path (in this case, path1)
             # for i in range(random.randint(1, len(path2.get_path()))):
-            #     if (not graph_links_queue):
-            #         break
-            #     new_link = graph_links_queue.pop()
-            #     while(new_link in offspring):
-            #         if (not graph_links_queue):
-            #             break
-            #         new_link = graph_links_queue.pop()
-            #     offspring.append(new_link)
             offspring = add_random_edges(graph, offspring, path2)
     
     offspring = Path(offspring)
@@ -183,7 +142,7 @@ def make_new_generation(current_population, graph, target_nodes):
         parent_path1 = random.choice(current_population[0:(len(current_population)//2)])
         parent_path2 = random.choice(current_population[0:(len(current_population)//2)])
         offspring = make_offspring(parent_path1, parent_path2, graph)
-        offspring.set_fitness_score(calc_fitness_score_joe(offspring.get_path(), graph, target_nodes))
+        offspring.set_fitness_score(calc_fitness_score(offspring.get_path(), graph, target_nodes))
         offspring_paths.append(offspring)
 
     # then, merge it with the current population
@@ -199,7 +158,6 @@ def make_new_generation(current_population, graph, target_nodes):
 
     # return the new population, here it is not sorted based on fitness score
     return new_generation
-
 
 
 # DFS search through the graph
@@ -236,19 +194,7 @@ def are_connected(edges, nodes):
 
     return connected_count
 
-# Calculates the fitness of the offspring
-def calc_fitness_score(offspring, graph, target_nodes):
-    offspring = [graph[key] for key in offspring]
-
-    nodes_connected = are_connected(offspring, target_nodes)
-
-    num_edges = len(offspring)
-
-    fitness = nodes_connected/(1+num_edges)
-
-    return fitness
-
-def calc_fitness_score_joe(path, graph, target_nodes):
+def calc_fitness_score(path, graph, target_nodes):
     path = [graph[key] for key in path]
 
     # number of nodes connected
@@ -257,95 +203,19 @@ def calc_fitness_score_joe(path, graph, target_nodes):
     # number of edges in a path
     num_edges = len(path)
 
-    # calculate the base score
+    # calculate the base score, from which we penalize the score
     score = num_nodes_connected * 200
 
     # penalty depending on the length of the path (shorter path is better)
     score = score - num_edges * 20
 
-    # if not all the target nodes are not connected, another penalty 
+    # if not all the target nodes are not connected, we give another penalty, which can be heavy
     if len(target_nodes) != num_nodes_connected:
         score = score - (len(target_nodes)-num_nodes_connected) * 200
 
+    # we divide the score by the by the number of target nodes so that we can normalize the score value
     return score / len(target_nodes)
 
-
-# Kiko
-# Function to do Dijkstra search algorithm for fitness
-# to check if a path is connected, and get the shortest path from one node
-# this shows which nodes are connected to which nodes
-def create_sub_graph(chromosome, graph):
-    sub_graph = {}
-
-    for c in chromosome:
-        if not (graph[c][0] in sub_graph):
-            sub_graph[graph[c][0]] = []
-        sub_graph[graph[c][0]].append(graph[c][1])
-
-        if not (graph[c][1] in sub_graph):
-            sub_graph[graph[c][1]] = []
-        sub_graph[graph[c][1]].append(graph[c][0])
-
-    return sub_graph
-
-def find_shortest_path(graph, start, goal):
-    # Keep track of visited nodes
-    visited = set()
-    # Queue to store paths
-    queue = deque([[start]])
-    
-    # BFS loop
-    while queue:
-        path = queue.popleft()
-        node = path[-1]
-        
-        if node == goal:
-            # TODO set in a path object
-            return len(path) - 1  # Number of edges = number of nodes in path - 1
-        
-        if node not in visited:
-            visited.add(node)
-            for neighbor in graph[node]:
-                new_path = list(path)
-                new_path.append(neighbor)
-                queue.append(new_path)
-    
-    # TODO set in a path object
-    return None  # Return None if no path exists
-
-def calc_distance(sub_graph, visited_nodes):
-    total_distance = 0
-    connection_count = 1
-    for i in range(len(visited_nodes)-1):
-        distance = find_shortest_path(sub_graph, visited_nodes[i], visited_nodes[i+1])
-        if distance != None:
-            total_distance += distance
-            connection_count += 1
-    # TODO set in a path object
-    return total_distance, connection_count
- 
-# Willy: function to calculate the fitness score 
-"""
-fun calc_fitness_score(chromsome):
-    - if any node from M is in a chromsome
-        - if there are more than two nodes in chromsome
-            - if there are connections between them
-                - cost of links
-    - cost of links
-"""
-
-# Kiko: sort population based on fitness score
-"""
-fun sort_population():
-    based on fitness score for each of chromsome, sort from the best to the worst
-"""
-
-# show each generation with graph colored
-# show the best path from each generation
-"""
-fun show_generation(best_chromosome):
-    - show with the library
-"""
 
 # function for main 
 def __main__():
@@ -354,12 +224,12 @@ def __main__():
     # 1: the first population creation 
     population_size = 500
 
-    target_nodes = [3, 9, ]
+    target_nodes = [3, 5, 7, 15]
 
     new_population = []
     for i in range(population_size):
         path = Path(generate_path(graph))
-        fitness_score = calc_fitness_score_joe(path.get_path(), graph, target_nodes)
+        fitness_score = calc_fitness_score(path.get_path(), graph, target_nodes)
         path.set_fitness_score(fitness_score)
         new_population.append(path)
 
