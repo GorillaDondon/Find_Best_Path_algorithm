@@ -264,9 +264,7 @@ def show_generation(best_chromosome, graph, target_nodes, generation):
     fig, ax = plt.subplots()
     ig.plot(G, target=ax, **visual_style)
 
-    plt.show()
-
-    save_path = os.path.join("Best_generations", f"Generation{generation}.pdf")
+    save_path = os.path.join("Best_generations", f"Generation{generation}.png")
 
     fig.savefig(save_path)
 
@@ -293,7 +291,7 @@ def __main__():
     print("------------- the 1st generation --------------")
     print(f"the best of this generation: {new_population[0].get_path()}, fitness score: {new_population[0].fitness_score}\n")
     
-    for k in range(5):
+    for k in range(50):
         new_population = make_new_generation(new_population, graph, target_nodes)
         print(f"------------- best 5 solutions of {k+1}th generation")
         for i in range(5):
