@@ -56,11 +56,12 @@ def add_random_edges(graph, offspring, parent):
     random.shuffle(graph_links)
     graph_links_queue = deque(graph_links)
 
-    # 
+    # add some random edges to the already_made offspring path 
     for i in range(random.randint(1, len(parent.get_path()))):
         if (not graph_links_queue):
             break
         new_link = graph_links_queue.pop()
+        # prevent the duplication of the same edge
         while(new_link in offspring and graph_links_queue):
             new_link = graph_links_queue.pop()
         offspring.append(new_link)
@@ -100,7 +101,7 @@ def make_offspring(path1, path2, graph):
     # make a offspring longer than the two paths
     else:
         # the idea is to first get an offspring of the same length as the longer parent path, and then, 
-        #   add new links (the number of links is randomly decided less than the number of shorter path) to the offspring
+        #   add new edges (the number of edges is randomly decided less than the number of the shorter path) to the offspring
         #   By randomly adding some links, it works as mutation
         if (len(path1.get_path()) < len(path2.get_path())):
             # first, get links for the number of length of the longer path (in his case, path2)
@@ -257,18 +258,7 @@ def __main__():
     for i in range(3):
         print(f"{i}th: {new_population[i].get_path()}, {new_population[i].fitness_score}")
     
-    
-    # 2: check if the best path is found or not? if yes, show the result and the operation is done. 
-    #       if not, proceed with the operations 
-    #       - Here, we have to decide how to finish the operation. 
-    #       - we can specify the number of operations, or we can end the operation 
-    #           once a chromesome that seems to have the best fitting score is found in new generation
-    
-    
-
-    # 3: conducting the mating process, and make new generation
-    #   - once it is done, go back to the #2 and check if you have the path with the best fitting score. (while loop?)
-    
+    # repeat the seaarch until the termination condition meets
     while(True):
         # terminate the algorithm if it gets the same best fitness score for 30 times in a row
         if (no_change_count == 40):
