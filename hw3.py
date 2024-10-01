@@ -272,7 +272,7 @@ def show_generation(best_chromosome, graph, target_nodes, generation):
 
 # function for main 
 def __main__():
-    graph = dictionary_maker('C:\\Users\\William Hall\\Desktop\\CSCE480\\HW3\\hw3_cost239.txt')
+    graph = dictionary_maker("hw3_cost239.txt")
 
     # 1: the first population creation 
     population_size = 500
