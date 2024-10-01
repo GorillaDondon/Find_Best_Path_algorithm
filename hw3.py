@@ -219,26 +219,31 @@ def calc_fitness_score(path, graph, target_nodes):
 
 # function for main 
 def __main__():
+    # creation of the graph based on the text file
     graph = dictionary_maker('/Users/joejoezaki/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Documents/Semesters/Fall_2024/CSCE_480/hw/hw3/hw3/hw3_cost239.txt')
 
-    # 1: the first population creation 
-    population_size = 500
-
+    # Set the target nodes
     target_nodes = [3, 5, 7, 15]
 
+    # decide the population size
+    population_size = 30000
+
+    # decide the number of generations 
+    num_of_generation = 20
+    
+    # create the first generation
     new_population = []
     for i in range(population_size):
         path = Path(generate_path(graph))
         fitness_score = calc_fitness_score(path.get_path(), graph, target_nodes)
         path.set_fitness_score(fitness_score)
         new_population.append(path)
+    # sort the first population based on the fitness score
+    new_population = sorted(new_population, reverse = True, key=lambda path: path.fitness_score)
 
-    new_population = sorted(new_population, key=lambda path: path.fitness_score)
-
-    
-
-    print("------------- the 1st generation --------------")
-    print(f"the best of this generation: {new_population[0].get_path()}, fitness score: {new_population[0].fitness_score}\n")
+    print("------------- best 3 solutions of the 1st generation --------------")
+    for i in range(3):
+        print(f"{i}th: {new_population[i].get_path()}, {new_population[i].fitness_score}")
     
     # 2: check if the best path is found or not? if yes, show the result and the operation is done. 
     #       if not, proceed with the operations 
@@ -249,13 +254,12 @@ def __main__():
     # 3: conducting the mating process, and make new generation
     #   - once it is done, go back to the #2 and check if you have the path with the best fitting score. (while loop?)
     
-    
-    for k in range(100):
+    for k in range(num_of_generation - 1):
         new_population = make_new_generation(new_population, graph, target_nodes)
         # for i in range(5):
         #     print(f"the {i}th best of this generation: {new_population[i].get_path()}, fitness score: {new_population[i].fitness_score}\n")
-        print(f"------------- best 5 solutions of {k+1}th generation")
-        for i in range(5):
+        print(f"------------- best 3 solutions of {k+2}th generation --------------")
+        for i in range(3):
             print(f"{i}th: {new_population[i].get_path()}, {new_population[i].fitness_score}")
 
 __main__()
