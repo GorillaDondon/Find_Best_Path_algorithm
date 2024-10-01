@@ -234,8 +234,14 @@ def __main__():
     # decide the population size
     population_size = 500
 
-    # decide the number of generations 
-    num_of_generation = 100
+    # used for termination of the algorithm, count the number of times that the best fitness score does not change
+    no_change_count = 0
+
+    # store the best fitness score of the previous generation
+    previous_best_score = 0.0
+
+    # store the number of generations 
+    num_generation = 1
     
     # create the first generation
     new_population = []
@@ -251,22 +257,42 @@ def __main__():
     for i in range(3):
         print(f"{i}th: {new_population[i].get_path()}, {new_population[i].fitness_score}")
     
+    
     # 2: check if the best path is found or not? if yes, show the result and the operation is done. 
     #       if not, proceed with the operations 
     #       - Here, we have to decide how to finish the operation. 
     #       - we can specify the number of operations, or we can end the operation 
     #           once a chromesome that seems to have the best fitting score is found in new generation
+    
+    
 
     # 3: conducting the mating process, and make new generation
     #   - once it is done, go back to the #2 and check if you have the path with the best fitting score. (while loop?)
     
-    for k in range(num_of_generation - 1):
+    while(True):
+        # terminate the algorithm if it gets the same best fitness score for 30 times in a row
+        if (no_change_count == 40):
+            break
+        
+        # store the best fitness score of the first generation
+        previous_best_score = new_population[0].fitness_score
+
+        # update the generation number
+        num_generation += 1
+
+        # make a new generation
         new_population = make_new_generation(new_population, graph, target_nodes)
-        # for i in range(5):
-        #     print(f"the {i}th best of this generation: {new_population[i].get_path()}, fitness score: {new_population[i].fitness_score}\n")
-        print(f"------------- best 3 solutions of {k+2}th generation --------------")
+        print(f"------------- best 3 solutions of {num_generation}th generation --------------")
         for i in range(3):
             print(f"{i}th: {new_population[i].get_path()}, {new_population[i].fitness_score}")
+
+        # check if the previous best fitness score and the latest best fitness score is equal or not
+        if (new_population[0].fitness_score == previous_best_score):
+            no_change_count += 1
+        else:
+            no_change_count = 0
+
+    print(f"The best path {new_population[0].get_path()} (fitness score: {new_population[0].fitness_score}) is found within {num_generation} operations of our genetic algorithm")
 
 __main__()
 
