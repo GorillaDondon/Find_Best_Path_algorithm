@@ -214,7 +214,7 @@ def calc_fitness_score(path, graph, target_nodes):
         score = score - (len(target_nodes)-num_nodes_connected) * 200
 
     # we divide the score by the by the number of target nodes so that we can normalize the score value
-    return score / len(target_nodes)
+    return round(score / len(target_nodes),2)
 
 
 # function for main 
@@ -223,13 +223,13 @@ def __main__():
     graph = dictionary_maker('/Users/joejoezaki/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Documents/Semesters/Fall_2024/CSCE_480/hw/hw3/hw3/hw3_cost239.txt')
 
     # Set the target nodes
-    target_nodes = [3, 5, 7, 15]
+    target_nodes = [3, 5, 7, 15, 10, 14, 18]
 
     # decide the population size
-    population_size = 30000
+    population_size = 5000
 
     # decide the number of generations 
-    num_of_generation = 20
+    num_of_generation = 100
     
     # create the first generation
     new_population = []
