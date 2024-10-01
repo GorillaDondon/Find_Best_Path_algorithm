@@ -88,10 +88,14 @@ def make_offspring(path1, path2, graph):
     # make a offspring of the length of the path1
     if prob < 0.40:
         for i in range(random.randint(0, len(path1.get_path()))):
+            if not all_links_queue:
+                break
             offspring.append(all_links_queue.pop())
     # make a offspring of the length of the path2
     elif prob <0.80:
         for i in range(random.randint(0, len(path2.get_path()))):
+            if not all_links_queue:
+                break
             offspring.append(all_links_queue.pop())
     # make a offspring longer than the two paths
     else:
@@ -101,6 +105,8 @@ def make_offspring(path1, path2, graph):
         if (len(path1.get_path()) < len(path2.get_path())):
             # first, get links for the number of length of the longer path (in his case, path2)
             for i in range(len(path2.get_path())):
+                if not all_links_queue:
+                    break
                 offspring.append(all_links_queue.pop())
             
             # additionally, add new links for the number of length less than that of the shorter path (in this case, path1)
@@ -223,10 +229,10 @@ def __main__():
     graph = dictionary_maker('/Users/joejoezaki/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Documents/Semesters/Fall_2024/CSCE_480/hw/hw3/hw3/hw3_cost239.txt')
 
     # Set the target nodes
-    target_nodes = [3, 5, 7, 15, 10, 14, 18]
+    target_nodes = [3, 5, 7, 15]
 
     # decide the population size
-    population_size = 5000
+    population_size = 500
 
     # decide the number of generations 
     num_of_generation = 100
