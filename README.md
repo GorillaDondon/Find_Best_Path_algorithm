@@ -1,3 +1,8 @@
+### Librarires needed to install
+## Install igraph libary
+pip install igraph
+
+
 ### Useful links 
 
 [Slide (mutation)](https://liacs.leidenuniv.nl/~nijssensgr/CI/2013/10%20genetic%20algorithm.pdf) 
