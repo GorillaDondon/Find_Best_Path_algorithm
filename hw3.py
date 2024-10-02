@@ -18,7 +18,6 @@ class Path:
     def get_fitness_score(self):
         return self.fitness_score
 
-
 # function to make a dictionary representing a graph, where the number of links are used as keys
 def dictionary_maker(file_name):
     with open (file_name, 'r') as file:
@@ -48,7 +47,7 @@ def generate_path(graph):
     edge_num_queue = deque(all_edge_numbers)
 
     path = []
-    for i in range(len_path):
+    for _ in range(len_path):
         path.append(edge_num_queue.pop())
 
     return path
@@ -60,11 +59,12 @@ def add_random_edges(graph, offspring, parent):
     random.shuffle(graph_links)
     graph_links_queue = deque(graph_links)
 
-    
+    # add some random edges to the already_made offspring path 
     for i in range(random.randint(1, len(parent.get_path()))):
         if (not graph_links_queue):
             break
         new_link = graph_links_queue.pop()
+        # prevent the duplication of the same edge
         while(new_link in offspring and graph_links_queue):
             new_link = graph_links_queue.pop()
         offspring.append(new_link)
@@ -76,11 +76,6 @@ def make_offspring(path1, path2, graph):
     # contain the links that comprises offspring
     offspring = []
 
-    # all the links (edges) in the graph
-    graph_links = list(graph)
-    random.shuffle(graph_links)
-    graph_links_queue = deque(graph_links)
-
     # all the links (edges) in the two paths
     all_links = path1.get_path() + path2.get_path()
     all_links = list(set(all_links)) # to prevent the duplication of the same link 
@@ -91,20 +86,26 @@ def make_offspring(path1, path2, graph):
 
     # make a offspring of the length of the path1
     if prob < 0.40:
-        for i in range(random.randint(0, len(path1.get_path()))):
+        for _ in range(random.randint(0, len(path1.get_path()))):
+            if not all_links_queue:
+                break
             offspring.append(all_links_queue.pop())
     # make a offspring of the length of the path2
     elif prob <0.80:
-        for i in range(random.randint(0, len(path2.get_path()))):
+        for _ in range(random.randint(0, len(path2.get_path()))):
+            if not all_links_queue:
+                break
             offspring.append(all_links_queue.pop())
     # make a offspring longer than the two paths
     else:
-        #   the idea is to first get an offspring of the same length as the longer parent path, and then, 
-        #   add new links (the number of links is randomly decided less than the number of shorter path) to the offspring
-        #   By randomly adding some links, it works as mutation
+        # the idea is to first get an offspring of the same length as the longer parent path, and then, 
+        # add new edges (the number of edges is randomly decided less than the number of the shorter path) to the offspring
+        # By randomly adding some links, it works as mutation
         if (len(path1.get_path()) < len(path2.get_path())):
             # first, get links for the number of length of the longer path (in his case, path2)
             for i in range(len(path2.get_path())):
+                if not all_links_queue:
+                    break
                 offspring.append(all_links_queue.pop())
             
             # additionally, add new links for the number of length less than that of the shorter path (in this case, path1)
@@ -126,7 +127,7 @@ def make_offspring(path1, path2, graph):
     return offspring
 
 # function to generate a new generation. suppose that the parameter 'current_population' is 
-# already sorted based on fitness score
+#   already sorted based on fitness score
 def make_new_generation(current_population, graph, target_nodes):
     # get the population size
     population_size = len(current_population)
@@ -145,7 +146,11 @@ def make_new_generation(current_population, graph, target_nodes):
         # randomly select 2 parent paths out of the best 50% fitting paths
         parent_path1 = random.choice(current_population[0:(len(current_population)//2)])
         parent_path2 = random.choice(current_population[0:(len(current_population)//2)])
+
+        # create an offspring
         offspring = make_offspring(parent_path1, parent_path2, graph)
+
+        # determine the offspring fitness score and append it to the new offsprings list
         offspring.set_fitness_score(calc_fitness_score(offspring.get_path(), graph, target_nodes))
         offspring_paths.append(offspring)
 
@@ -174,6 +179,7 @@ def dfs(node, graph, visited):
 # Function to see how many nodes are connected
 def are_connected(edges, nodes):
 
+    # Creates a graph to see if they are connected out of the subgraph
     graph = {}
     for u, v in edges:
         if u not in graph:
@@ -187,6 +193,7 @@ def are_connected(edges, nodes):
     if not any(node in graph for node in nodes):
         return 0
     
+    # Do DFS for the nodes
     visited = set()
     for node in nodes:
         if node in graph:
@@ -218,10 +225,9 @@ def calc_fitness_score(path, graph, target_nodes):
         score = score - (len(target_nodes)-num_nodes_connected) * 200
 
     # we divide the score by the by the number of target nodes so that we can normalize the score value
-    return score / len(target_nodes)
+    return round(score / len(target_nodes),2)
 
-
-# show each generation with sub_graph colored
+# Show each generation with sub_graph colored
 def show_generation(best_chromosome, graph, target_nodes, generation):
 
     # Extract edges from the graph dictionary
@@ -260,25 +266,37 @@ def show_generation(best_chromosome, graph, target_nodes, generation):
     visual_style["edge_label"] = [str(i) for i in range(len(G.es))]
     visual_style["edge_label_dist"] = 1.5  # Push edge labels away from edges
 
-
-
     # Plotting using igraph and Matplotlib
     fig, ax = plt.subplots(figsize=(15, 15))
     ig.plot(G, target=ax, **visual_style)
 
+    # Save the graph to the sub folder "Best_generation"
     save_path = os.path.join("Best_generations", f"Generation{generation}.png")
 
     fig.savefig(save_path)
 
+
 # function for main 
 def __main__():
-    graph = dictionary_maker("hw3_cost239.txt")
+    # creation of the graph based on the text file
+    graph = dictionary_maker('hw3_cost239.txt')
 
-    # 1: the first population creation 
+    # Set the target nodes
+    target_nodes = [3, 5, 7, 15]
+
+    # decide the population size
     population_size = 500
 
-    target_nodes = [3, 9, 15, 10, 13, 4, 1]
+    # used for termination of the algorithm, count the number of times that the best fitness score does not change
+    no_change_count = 0
 
+    # store the best fitness score of the previous generation
+    previous_best_score = 0.0
+
+    # store the number of generations 
+    num_generation = 1
+    
+    # create the first generation
     new_population = []
     for i in range(population_size):
         path = Path(generate_path(graph))
@@ -286,18 +304,42 @@ def __main__():
         path.set_fitness_score(fitness_score)
         new_population.append(path)
 
-    new_population = sorted(new_population, key=lambda path: path.fitness_score)
+    # sort the first population based on the fitness score
+    new_population = sorted(new_population, reverse = True, key=lambda path: path.fitness_score)
 
+    # show the best path in the first population
+    print("---------- 1st generation Best Path ----------")
+    print(f"{new_population[0].get_path()}, Score:{new_population[0].fitness_score}\n")
+    show_generation(new_population[0].get_path(), graph, target_nodes, num_generation)
     
+    # repeat the search until the termination condition meets
+    while(True):
+        # terminate the algorithm if it gets the same best fitness score for 30 times in a row
+        if (no_change_count == 40):
+            break
+        
+        # store the best fitness score of the first generation
+        previous_best_score = new_population[0].fitness_score
 
-    print("------------- the 1st generation --------------")
-    print(f"the best of this generation: {new_population[0].get_path()}, fitness score: {new_population[0].fitness_score}\n")
-    
-    for k in range(3):
+        # update the generation number
+        num_generation += 1
+
+        # make a new generation
         new_population = make_new_generation(new_population, graph, target_nodes)
-        print(f"------------- best 5 solutions of {k+1}th generation")
-        for i in range(5):
-            print(f"{i}th: {new_population[i].get_path()}, {new_population[i].fitness_score}")
 
-        show_generation(new_population[0].get_path(), graph, target_nodes, k)
+        # check if the previous best fitness score and the latest best fitness score is equal or not
+        if (new_population[0].fitness_score == previous_best_score):
+            no_change_count += 1
+        else:
+            no_change_count = 0
+
+        # save the graph display every 10 generations
+        if(num_generation % 10 == 0):
+            print(f"---------- {num_generation}th Best Path ----------")
+            print(f"{new_population[0].get_path()}, Score:{new_population[0].fitness_score}\n")
+            show_generation(new_population[0].get_path(), graph, target_nodes, num_generation)
+
+    # show the best path and save the graph
+    print(f"The best path {new_population[0].get_path()} (fitness score: {new_population[0].fitness_score}) is found on the {num_generation - 39}th operation of our genetic algorithm")
+
 __main__()
