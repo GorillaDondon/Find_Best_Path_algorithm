@@ -1,6 +1,9 @@
 import re
 import random
 from collections import deque
+import igraph as ig
+import matplotlib.pyplot as plt
+import os
 
 class Path:
     def __init__(self, path):
@@ -223,11 +226,60 @@ def calc_fitness_score(path, graph, target_nodes):
     # we divide the score by the by the number of target nodes so that we can normalize the score value
     return round(score / len(target_nodes),2)
 
+# show each generation with sub_graph colored
+def show_generation(best_chromosome, graph, target_nodes, generation):
+
+    # Extract edges from the graph dictionary
+    graph_edges = graph.values()
+    
+    # Create the igraph graph object
+    G = ig.Graph(edges=graph_edges)
+
+    # Layout for node positioning
+    layout = G.layout("kk")  # Kamada-Kawai layout
+    layout.scale(2.0)
+
+    visual_style = {
+        "layout":layout,
+        "margin": 50,
+    }
+
+    # Assign all nodes the color blue
+    vertex_colors = ["lightblue"] * len(G.vs)
+
+    # Assign all target nodes red
+    for node in target_nodes:
+        vertex_colors[node] = "red"
+
+    # Assign node colors and the node number to each node 
+    visual_style["vertex_color"] = vertex_colors
+    visual_style["vertex_label"] = [str(i) for i in range(len(G.vs))]
+
+    # Assigns all the offspring to red and the rest of the graph nodes to blue
+    edge_colors = ["gray"] * len(G.es)
+    for edge_idx in best_chromosome:
+        edge_colors[edge_idx] = "red"  # Highlight edges in best_chromosome
+
+    # Assign the edge colors  and the edge numbers to each node
+    visual_style["edge_color"] = edge_colors
+    visual_style["edge_label"] = [str(i) for i in range(len(G.es))]
+    visual_style["edge_label_dist"] = 1.5  # Push edge labels away from edges
+
+
+
+    # Plotting using igraph and Matplotlib
+    fig, ax = plt.subplots(figsize=(15, 15))
+    ig.plot(G, target=ax, **visual_style)
+
+    save_path = os.path.join("Best_generations", f"Generation{generation}.png")
+
+    fig.savefig(save_path)
+
 
 # function for main 
 def __main__():
     # creation of the graph based on the text file
-    graph = dictionary_maker('/Users/joejoezaki/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Documents/Semesters/Fall_2024/CSCE_480/hw/hw3/hw3/hw3_cost239.txt')
+    graph = dictionary_maker('hw3_cost239.txt')
 
     # Set the target nodes
     target_nodes = [3, 5, 7, 15]
@@ -254,9 +306,10 @@ def __main__():
     # sort the first population based on the fitness score
     new_population = sorted(new_population, reverse = True, key=lambda path: path.fitness_score)
 
-    print("------------- best 3 solutions of the 1st generation --------------")
-    for i in range(3):
-        print(f"{i}th: {new_population[i].get_path()}, {new_population[i].fitness_score}")
+    # show the best path in the first population
+    print("---------- 1st generation Best Path ----------")
+    print(f"{new_population[0].get_path()}, Score:{new_population[0].fitness_score}\n")
+    show_generation(new_population[0].get_path(), graph, target_nodes, num_generation)
     
     # repeat the seaarch until the termination condition meets
     while(True):
@@ -272,9 +325,9 @@ def __main__():
 
         # make a new generation
         new_population = make_new_generation(new_population, graph, target_nodes)
-        print(f"------------- best 3 solutions of {num_generation}th generation --------------")
-        for i in range(3):
-            print(f"{i}th: {new_population[i].get_path()}, {new_population[i].fitness_score}")
+        # print(f"------------- best 3 solutions of {num_generation}th generation --------------")
+        # for i in range(3):
+        #     print(f"{i}th: {new_population[i].get_path()}, {new_population[i].fitness_score}")
 
         # check if the previous best fitness score and the latest best fitness score is equal or not
         if (new_population[0].fitness_score == previous_best_score):
@@ -282,7 +335,15 @@ def __main__():
         else:
             no_change_count = 0
 
-    print(f"The best path {new_population[0].get_path()} (fitness score: {new_population[0].fitness_score}) is found within {num_generation} operations of our genetic algorithm")
+        # save the graph display every 20 generations
+        if(num_generation % 20 == 0):
+            print(f"---------- {num_generation}th Best Path ----------")
+            print(f"{new_population[0].get_path()}, Score:{new_population[0].fitness_score}\n")
+            show_generation(new_population[0].get_path(), graph, target_nodes, num_generation)
+
+    # show the best path and save the graph
+    print(f"The best path {new_population[0].get_path()} (fitness score: {new_population[0].fitness_score}) is found on the {num_generation - 39}th operation of our genetic algorithm")
+    show_generation(new_population[0].get_path(), graph, target_nodes, num_generation)
 
 __main__()
 
