@@ -1,6 +1,6 @@
-### Librarires needed to install
+# Librarires needed to install
 ## Install igraph libary
-pip install igraph
+- pip install igraph
 
 
 ### Useful links 
